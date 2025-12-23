@@ -36,7 +36,8 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 SCALER_PATH = os.path.join(BASE_DIR, "scaler.pkl")
-DATA_PATH = os.path.join(BASE_DIR, "data.csv")
+SHAP_BG_ALL_CAUSE_PATH = os.path.join(BASE_DIR, "shap_background_all_cause.csv")
+SHAP_BG_CARDIO_PATH = os.path.join(BASE_DIR, "shap_background_cardio.csv")
 
 # Load models and scaler
 print("Loading models and scaler...")
@@ -45,16 +46,19 @@ try:
     model_all_cause = joblib.load(os.path.join(MODEL_DIR, "CI_all_cause_death_GradientBoostingSurvival.pkl"))
     model_cardiovascular = joblib.load(os.path.join(MODEL_DIR, "CI_cardiovascular_death_RandomSurvivalForest.pkl"))
     
-    # Load training data for SHAP
-    df_train = pd.read_csv(DATA_PATH)
+    # Load SHAP background data (pre-computed cluster centers)
+    shap_bg_all_cause = pd.read_csv(SHAP_BG_ALL_CAUSE_PATH)
+    shap_bg_cardio = pd.read_csv(SHAP_BG_CARDIO_PATH)
+    print(f"Loaded SHAP background data: all-cause={shap_bg_all_cause.shape}, cardio={shap_bg_cardio.shape}")
 except Exception as e:
     print(f"Error loading files: {e}")
-    print("Please ensure scaler.pkl and data.csv are in the same directory as app.py")
+    print("Please ensure all required files are present")
     # Create dummy objects to prevent immediate crash, but app won't work correctly
     scaler = None
     model_all_cause = None
     model_cardiovascular = None
-    df_train = pd.DataFrame()
+    shap_bg_all_cause = pd.DataFrame()
+    shap_bg_cardio = pd.DataFrame()
 
 # Prediction Time Horizon (Months)
 # Setting to 240 months (20 years) for better discrimination and clinical relevance
@@ -63,14 +67,8 @@ TIME_HORIZON = 240.0
 # Get all feature names that scaler expects
 if scaler and hasattr(scaler, 'feature_names_in_'):
     scaler_features = list(scaler.feature_names_in_)
-elif not df_train.empty:
-    scaler_features = list(df_train.columns)
 else:
     scaler_features = []
-
-# Rename HighCholesterol to Dyslipidemia for display purposes
-if not df_train.empty and 'HighCholesterol' in df_train.columns:
-    df_train = df_train.rename(columns={'HighCholesterol': 'Dyslipidemia'})
 
 # Feature definitions
 all_cause_features = [
@@ -150,14 +148,13 @@ if not df_train.empty:
     X_cardio = df_train[cardiovascular_features]
 
     print(f"Using {len(X_all_cause)} training samples for SHAP background data...")
+else:pre-computed background data (100 cluster centers)
+if not shap_bg_all_cause.empty and not shap_bg_cardio.empty:
+    X_all_cause = shap_bg_all_cause
+    X_cardio = shap_bg_cardio
+    print(f"Using pre-computed SHAP background: all-cause={len(X_all_cause)}, cardio={len(X_cardio)} samples")
 else:
-    print("Warning: Training data not loaded. SHAP explainers will not be initialized.")
-    X_all_cause = None
-    X_cardio = None
-
-def predict_all_cause(data):
-    """Predict all-cause mortality probability at 20 years"""
-    if model_all_cause is None:
+    print("Warning: SHAP backgroundne:
         return np.array([0.0])
         
     if hasattr(model_all_cause, "predict_survival_function"):
@@ -212,14 +209,13 @@ print(f"  Cardio:    Low < {thresholds['cardio']['low']:.1%} | Medium | High > {
 
 # Create SHAP explainers
 # Cluster all training data into representative points for computational efficiency
-# Using 100 cluster centers to balance accuracy and computation time (consistent with paper methodology)
+# Use pre-computed cluster centers directly (no need to re-cluster)
 if X_all_cause is not None and X_cardio is not None:
-    print("Clustering training data for SHAP (this may take 1-2 minutes)...")
+    print("Initializing SHAP explainers with pre-computed background data...")
     try:
-        explainer_all_cause = shap.KernelExplainer(predict_all_cause, shap.kmeans(X_all_cause, 100))
-        explainer_cardio = shap.KernelExplainer(predict_cardio, shap.kmeans(X_cardio, 100))
-        print(f"SHAP explainers initialized: {len(X_all_cause)} training samples -> 100 cluster centers")
-    except Exception as e:
+        explainer_all_cause = shap.KernelExplainer(predict_all_cause, X_all_cause)
+        explainer_cardio = shap.KernelExplainer(predict_cardio, X_cardio)
+        print(f"SHAP explainers initialized successfully with {len(X_all_cause)} background sample
         print(f"Error initializing SHAP explainers: {e}")
         explainer_all_cause = None
         explainer_cardio = None
@@ -309,34 +305,8 @@ def predict():
         input_standardized = np.array([final_input])
         
         # Clip inputs to training data range to avoid extrapolation
-        # This prevents the model from behaving unpredictably for out-of-distribution values
-        try:
-            if not df_train.empty:
-                # Map model features to training data features (handle Dyslipidemia/HighCholesterol mismatch)
-                train_features = []
-                for feat in model_features:
-                    if feat == 'HighCholesterol' and 'Dyslipidemia' in df_train.columns:
-                        train_features.append('Dyslipidemia')
-                    elif feat == 'Dyslipidemia' and 'HighCholesterol' in df_train.columns:
-                        train_features.append('HighCholesterol')
-                    else:
-                        train_features.append(feat)
-
-                # Get training data for the specific model features
-                # Note: df_train has standardized values for continuous features and raw for categorical
-                train_subset = df_train[train_features]
-                
-                # Calculate min and max from training data (using percentiles to avoid outliers)
-                # Using 0.5th and 99.5th percentiles to be robust against outliers
-                train_min = train_subset.quantile(0.005).values
-                train_max = train_subset.quantile(0.995).values
-                
-                # Clip the input
-                input_standardized = np.clip(input_standardized, train_min, train_max)
-                print(f"Input clipped to training range (0.5-99.5 percentile) for stability.")
-        except Exception as e:
-            print(f"Warning: Could not clip input to training range: {e}")
-
+        # Note: Input clipping removed since we no longer have full training data
+        # The SHAP background data provides sufficient range coverage
         # Make prediction
         prediction = float(predict_fn(input_standardized)[0])
         

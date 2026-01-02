@@ -3,3 +3,7 @@ __pycache__/
 .DS_Store
 .venv/
 venv/
+*.docx
+app.py
+app_flask_backup.py
+RENDER_DEPLOY_GUIDE.md

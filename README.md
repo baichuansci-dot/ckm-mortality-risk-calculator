@@ -1,35 +1,54 @@
-# Deployment Instructions for Render
+# CKM Mortality Risk Calculator
 
-This folder contains all the necessary files to deploy your Risk Calculator to Render.
+Predicts 20-year all-cause and cardiovascular mortality risk for CKM Syndrome Stages 0–3.
 
-## Prerequisites (Missing Files)
+## Project Structure
 
-Due to file access restrictions, I could not copy the following files. **You must manually copy them into this folder before deploying:**
+```
+deployment_package/
+├── flask-app.py              # Main Flask application
+├── requirements.txt          # Python dependencies
+├── railway.json              # Railway deployment config
+├── Procfile                  # Process file for deployment
+├── nixpacks.toml             # Nixpacks build config
+├── scaler.pkl                # Data scaler
+├── shap_background_all_cause.csv
+├── shap_background_cardio.csv
+├── models/
+│   ├── CI_all_cause_death_GradientBoostingSurvival.pkl
+│   └── CI_cardiovascular_death_RandomSurvivalForest.pkl
+└── templates/
+    └── index.html            # Web interface
+```
 
-1.  **`scaler.pkl`**: Copy this file from your project root to this `deployment_package` folder.
-2.  **`data.csv`**: Copy your standardized training data (originally named `训练集_标准化后.csv`) to this folder and **rename it to `data.csv`**.
+## 🚀 Deploy to Railway
 
-## How to Deploy to Render
+1. **Create GitHub Repository**:
+   - Push this folder to a new GitHub repository
 
-1.  **Upload to GitHub**:
-    *   Create a new repository on GitHub.
-    *   Upload the contents of this `deployment_package` folder (including the manually copied files) to the repository.
+2. **Deploy on Railway**:
+   - Go to [railway.app](https://railway.app) and sign in
+   - Click **New Project** → **Deploy from GitHub repo**
+   - Select your repository
+   - Railway will auto-detect the configuration and deploy
 
-2.  **Deploy on Render**:
-    *   Go to [render.com](https://render.com) and sign up/login.
-    *   Click **New +** -> **Web Service**.
-    *   Connect your GitHub account and select the repository you just created.
-    *   **Name**: Give your service a name (e.g., `ckd-risk-calculator`).
-    *   **Runtime**: Select **Python 3**.
-    *   **Build Command**: `pip install -r requirements.txt`
-    *   **Start Command**: `gunicorn app:app`
-    *   Click **Create Web Service**.
+3. **Generate Domain**:
+   - Once deployed, click **Settings** → **Generate Domain**
+   - Your app will be available at the generated URL
 
-3.  **Wait for Deployment**:
-    *   Render will install dependencies and start your app.
-    *   Once finished, you will see a URL like `https://ckd-risk-calculator.onrender.com`.
+## ⚙️ Local Development
 
-## Notes
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-*   **Fonts**: The code has been modified to use default fonts if 'Times New Roman' is not available on the server.
-*   **Memory**: The application uses a large dataset for SHAP explanations. If the free tier of Render runs out of memory, consider reducing the number of background samples in `app.py` (search for `shap.kmeans`).
+# Run the app
+python app.py
+```
+
+The app will be available at `http://localhost:5001`
+
+## 📝 Notes
+
+- **Memory**: The app uses SHAP for model explanations which requires significant memory
+- **Timeout**: Model predictions may take 10-30 seconds due to SHAP calculations

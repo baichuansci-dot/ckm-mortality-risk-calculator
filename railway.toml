@@ -2,4 +2,4 @@
 # Using Dockerfile for reliable system dependency installation
 
 [deploy]
-# Remove startCommand to use Dockerfile CMD instead, which properly handles $PORT
+startCommand = "gunicorn app:app --bind 0.0.0.0:$PORT"

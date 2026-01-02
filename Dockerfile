@@ -1,32 +1,21 @@
-# Use Python 3.14 slim image
-FROM python:3.14.0-slim
+# Use Python 3.14 full image (not slim) for better build tool support
+FROM python:3.14.0
 
 # Set working directory
 WORKDIR /app
 
-# Install build dependencies and runtime libraries
-# Build tools needed for compiling matplotlib, shap dependencies
+# Install additional system dependencies for image processing
+# Full image already has build tools (gcc, g++, make, git, etc.)
 RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    make \
-    pkg-config \
-    git \
     libtiff6 \
     libtiff-dev \
     libjpeg62-turbo \
     libjpeg62-turbo-dev \
-    zlib1g \
     zlib1g-dev \
-    libfreetype6 \
     libfreetype6-dev \
-    libpng16-16 \
     libpng-dev \
-    liblcms2-2 \
     liblcms2-dev \
-    libwebp7 \
     libwebp-dev \
-    libopenjp2-7 \
     libopenjp2-7-dev \
     && rm -rf /var/lib/apt/lists/*
 

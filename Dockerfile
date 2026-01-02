@@ -31,5 +31,5 @@ COPY . .
 # Expose port (Railway will set $PORT environment variable)
 EXPOSE 8080
 
-# Start command - use shell form to allow variable expansion at runtime
-CMD gunicorn app:app --bind 0.0.0.0:$PORT
+# Start command - use explicit shell to ensure $PORT variable expansion
+CMD ["/bin/sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT}"]

@@ -10,7 +10,21 @@ nixPkgs = [
   "libpng",
   "lcms2",
   "libwebp",
-  "openjpeg"
+  "openjpeg",
+  "gcc",
+  "pkg-config"
+]
+
+aptPkgs = [
+  "libtiff6",
+  "libtiff-dev",
+  "libjpeg62-turbo",
+  "zlib1g",
+  "libfreetype6",
+  "libpng16-16",
+  "liblcms2-2",
+  "libwebp7",
+  "libopenjp2-7"
 ]
 
 [start]

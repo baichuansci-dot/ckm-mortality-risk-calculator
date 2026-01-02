@@ -31,5 +31,5 @@ COPY . .
 # Expose port (Railway will set $PORT environment variable)
 EXPOSE 8000
 
-# Start command - use explicit shell to ensure $PORT variable expansion
-CMD ["/bin/bash", "-c", "gunicorn run:app –bind 0.0.0.0:$PORT"]
+# No CMD here - Railway will use startCommand from railway.toml
+# This ensures $PORT is properly expanded at runtime

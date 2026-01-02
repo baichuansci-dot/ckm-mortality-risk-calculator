@@ -5,12 +5,13 @@ FROM python:3.14.0-slim
 WORKDIR /app
 
 # Install build dependencies and runtime libraries
-# Build tools needed for compiling matplotlib from source
+# Build tools needed for compiling matplotlib, shap dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     make \
     pkg-config \
+    git \
     libtiff6 \
     libtiff-dev \
     libjpeg62-turbo \

@@ -1,5 +1,5 @@
 [build]
-nixpacksPlan = "nixpacks.toml"
+# Using Dockerfile for reliable system dependency installation
 
 [deploy]
 startCommand = "gunicorn app:app --bind 0.0.0.0:$PORT"

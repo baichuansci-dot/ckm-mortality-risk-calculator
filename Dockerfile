@@ -29,7 +29,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose port (Railway will set $PORT environment variable)
-EXPOSE 8000
+EXPOSE 8080
 
-# CMD
+# Start command - properly handle $PORT variable expansion
 CMD ["/bin/bash", "-c", "gunicorn app:app --bind 0.0.0.0:$PORT"]

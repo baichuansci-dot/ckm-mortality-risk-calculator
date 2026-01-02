@@ -32,4 +32,4 @@ COPY . .
 EXPOSE 8080
 
 # Start command - use shell form to allow variable expansion at runtime
-CMD ["/bin/bash", "-c", "gunicorn run:app –bind 0.0.0.0:$PORT"]
+CMD gunicorn app:app --bind 0.0.0.0:$PORT

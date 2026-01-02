@@ -35,9 +35,20 @@ DATA_PATH = os.path.join(BASE_DIR, "训练集_标准化后.csv")
 
 # Load models and scaler
 print("Loading models and scaler...")
-scaler = joblib.load(SCALER_PATH)
-model_all_cause = joblib.load(os.path.join(MODEL_DIR, "CI_all_cause_death_GradientBoostingSurvival.pkl"))
-model_cardiovascular = joblib.load(os.path.join(MODEL_DIR, "CI_cardiovascular_death_RandomSurvivalForest.pkl"))
+try:
+    scaler = joblib.load(SCALER_PATH)
+    print(f"✓ Scaler loaded successfully")
+    model_all_cause = joblib.load(os.path.join(MODEL_DIR, "CI_all_cause_death_GradientBoostingSurvival.pkl"))
+    print(f"✓ All-cause model loaded successfully")
+    model_cardiovascular = joblib.load(os.path.join(MODEL_DIR, "CI_cardiovascular_death_RandomSurvivalForest.pkl"))
+    print(f"✓ Cardiovascular model loaded successfully")
+except Exception as e:
+    print(f"✗ ERROR loading models: {e}")
+    print(f"  Python version: {os.sys.version}")
+    print(f"  joblib version: {joblib.__version__}")
+    import sklearn
+    print(f"  scikit-learn version: {sklearn.__version__}")
+    raise
 
 # Load training data for SHAP
 df_train = pd.read_csv(DATA_PATH)

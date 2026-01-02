@@ -1,0 +1,14 @@
+# Nixpacks configuration for Railway
+# Installs system libraries required by matplotlib and Pillow
+
+[phases.setup]
+nixPkgs = [
+  "libtiff",
+  "libjpeg",
+  "zlib",
+  "freetype",
+  "libpng",
+  "lcms2",
+  "libwebp",
+  "openjpeg"
+]

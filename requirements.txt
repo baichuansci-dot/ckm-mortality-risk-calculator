@@ -1,9 +1,10 @@
 flask
 gunicorn
-joblib
+joblib==1.5.3
 numpy
 pandas
 shap
 matplotlib
-scikit-learn
-scikit-survival
+scikit-learn==1.7.2
+scikit-survival==0.26.0
+Pillow

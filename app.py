@@ -413,4 +413,6 @@ if __name__ == '__main__':
     print("  - Smoking: 0 = Never, 1 = Former, 2 = Current")
     print("\nServer starting on http://0.0.0.0:5001")
     print("="*70 + "\n")
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    port = int(os.environ.get('PORT', 5001))
+    debug_mode = os.environ.get('FLASK_DEBUG', 'True').lower() == 'true'
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)

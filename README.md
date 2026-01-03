@@ -6,14 +6,13 @@ Predicts 20-year all-cause and cardiovascular mortality risk for CKM Syndrome St
 
 ```
 deployment_package/
-├── flask-app.py              # Main Flask application
+├── app.py                    # Main Flask application
 ├── requirements.txt          # Python dependencies
-├── railway.json              # Railway deployment config
+├── railway.toml              # Railway deployment config
 ├── Procfile                  # Process file for deployment
 ├── nixpacks.toml             # Nixpacks build config
 ├── scaler.pkl                # Data scaler
-├── shap_background_all_cause.csv
-├── shap_background_cardio.csv
+├── 训练集_标准化后.csv        # Training data for SHAP background
 ├── models/
 │   ├── CI_all_cause_death_GradientBoostingSurvival.pkl
 │   └── CI_cardiovascular_death_RandomSurvivalForest.pkl

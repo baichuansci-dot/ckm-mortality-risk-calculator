@@ -26,4 +26,3 @@ aptPkgs = [
   "libwebp7",
   "libopenjp2-7"
 ]
-

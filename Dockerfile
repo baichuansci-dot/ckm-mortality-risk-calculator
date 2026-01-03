@@ -32,4 +32,4 @@ COPY . .
 EXPOSE 8000
 
 # Start command - properly handle $PORT variable expansion
-CMD ["/bin/bash", "-c", "gunicorn run:app -bind 0.0.0.0:$PORT"]
+CMD ["/bin/bash", "-c", "gunicorn app:app --bind 0.0.0.0:$PORT"]

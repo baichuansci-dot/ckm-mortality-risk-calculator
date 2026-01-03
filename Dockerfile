@@ -1,5 +1,5 @@
-# Use Python 3.14 full image (not slim) for better build tool support
-FROM python:3.14.0
+# Use Python 3.12 full image (not slim) for better build tool support
+FROM python:3.12
 
 # Set working directory
 WORKDIR /app

@@ -27,5 +27,3 @@ aptPkgs = [
   "libopenjp2-7"
 ]
 
-[start]
-cmd = "gunicorn run:app -bind 0.0.0.0:$PORT"

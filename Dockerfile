@@ -31,5 +31,5 @@ COPY . .
 # Expose port (Railway will set $PORT environment variable)
 EXPOSE 8000
 
-# Start command - properly handle $PORT variable expansion
-CMD ["/bin/bash", "-c", "gunicorn app:app --bind 0.0.0.0:$PORT"]
+# Start command - use config file to handle PORT
+CMD ["gunicorn", "-c", "gunicorn_config.py", "app:app"]

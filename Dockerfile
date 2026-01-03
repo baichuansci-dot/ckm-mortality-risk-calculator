@@ -1,5 +1,5 @@
-# Use Python 3.12 full image (not slim) for better build tool support
-FROM python:3.12
+# Use Python 3.11 full image for maximum compatibility
+FROM python:3.11
 
 # Set working directory
 WORKDIR /app
